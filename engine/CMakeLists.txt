@@ -1,10 +1,5 @@
-
-# simple CMakeLists.txt for building the C++ code
-# for the "Hello World" example
-
 cmake_minimum_required(VERSION 3.10)
 project(TinyRayTracer)
-
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

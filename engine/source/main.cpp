@@ -59,7 +59,7 @@ int main()
     RayTracer::Camera camera(width, height);
 
     RayTracer::Scene world;
-    switch (12)
+    switch (1)
     {
     case 1: get_random_sphere_world(camera, world); break;
     case 2: get_two_sphere_world(camera, world); break;
