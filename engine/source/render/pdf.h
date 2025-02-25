@@ -1,91 +1,89 @@
 #pragma once
-#include "mathlib.h"
-#include "Hittable.h"
 #include <memory>
 
-namespace RayTracer
-{
-    class Ray;
-    class HitResult;
-    
-    class Pdf
-    {
-        public:
-        virtual ~Pdf() {}
+#include "Hittable.h"
+#include "mathlib.h"
 
-        virtual float Value(const Vector3& direction) const = 0;
-        virtual Vector3 generate() const = 0;
-    };
+namespace RayTracer {
+class Ray;
+class HitResult;
 
-    class SpherePdf : public Pdf {
-    public:
-        SpherePdf() { }
+class Pdf {
+   public:
+    virtual ~Pdf() {}
 
-        float Value(const Vector3& direction) const override {
-            return 1.0f / (4.0f * PI);
-        }
+    virtual float Value(const Vector3& direction) const = 0;
+    virtual Vector3 generate() const = 0;
+};
 
-        Vector3 generate() const override {
-            return Vector3::RandomUnitSphere();
-        }
-    };
+class SpherePdf : public Pdf {
+   public:
+    SpherePdf() {}
 
-    class CosinePdf : public Pdf {
-    public:
-        CosinePdf(const Vector3& n) : normal(n) {
-            normal.tangentSpace(tangent, bitangent);
-        }
+    float Value(const Vector3& direction) const override {
+        return 1.0f / (4.0f * PI);
+    }
 
-        float Value(const Vector3& direction) const override {
-            float cosine = direction.normalized().dot(normal);
-            return fmaxf(0, cosine / PI);
-        }
+    Vector3 generate() const override { return Vector3::RandomUnitSphere(); }
+};
 
-        Vector3 generate() const override {
-            auto local_dir = Random::RandomCosineDirection();
-            return tangent * local_dir.x + bitangent * local_dir.y + normal * local_dir.z;
-        }
+class CosinePdf : public Pdf {
+   public:
+    CosinePdf(const Vector3& n) : normal(n) {
+        normal.tangentSpace(tangent, bitangent);
+    }
 
-        private:
-            Vector3 tangent;
-            Vector3 bitangent;
-            Vector3 normal;
-    };
+    float Value(const Vector3& direction) const override {
+        float cosine = direction.normalized().dot(normal);
+        return fmaxf(0, cosine / PI);
+    }
 
-    class HittablePdf : public Pdf {
-    public:
-        HittablePdf(std::shared_ptr<Hittable> obj, const Vector3& _origin) : hitObj(obj), origin(_origin) {}
+    Vector3 generate() const override {
+        auto local_dir = Random::RandomCosineDirection();
+        return tangent * local_dir.x + bitangent * local_dir.y +
+               normal * local_dir.z;
+    }
 
-        float Value(const Vector3& direction) const override {
-            return hitObj->pdfValue(origin, direction);
-        }
+   private:
+    Vector3 tangent;
+    Vector3 bitangent;
+    Vector3 normal;
+};
 
-        Vector3 generate() const override {
-            return hitObj->random(origin);
-        }
+class HittablePdf : public Pdf {
+   public:
+    HittablePdf(std::shared_ptr<Hittable> obj, const Vector3& _origin)
+        : hitObj(obj), origin(_origin) {}
 
-        private:
-            std::shared_ptr<Hittable> hitObj;
-            Vector3 origin;
-    };
+    float Value(const Vector3& direction) const override {
+        return hitObj->pdfValue(origin, direction);
+    }
 
-    class MixturePdf : public Pdf {
-    public:
-        MixturePdf(std::shared_ptr<Pdf> p0, std::shared_ptr<Pdf> p1) : pdf0(p0), pdf1(p1) {}
+    Vector3 generate() const override { return hitObj->random(origin); }
 
-        float Value(const Vector3& direction) const override {
-            return 0.5f * pdf0->Value(direction) + 0.5f * pdf1->Value(direction);
-        }
+   private:
+    std::shared_ptr<Hittable> hitObj;
+    Vector3 origin;
+};
 
-        Vector3 generate() const override {
-            if(Random::Random01() < 0.5f)
-                return pdf0->generate();
-            else
-                return pdf1->generate();
-        }
+class MixturePdf : public Pdf {
+   public:
+    MixturePdf(std::shared_ptr<Pdf> p0, std::shared_ptr<Pdf> p1)
+        : pdf0(p0), pdf1(p1) {}
 
-        private:
-            std::shared_ptr<Pdf> pdf0;
-            std::shared_ptr<Pdf> pdf1;
-    };
-}
+    float Value(const Vector3& direction) const override {
+        return 0.5f * pdf0->Value(direction) + 0.5f * pdf1->Value(direction);
+    }
+
+    Vector3 generate() const override {
+        if (Random::Random01() < 0.5f)
+            return pdf0->generate();
+        else
+            return pdf1->generate();
+    }
+
+   private:
+    std::shared_ptr<Pdf> pdf0;
+    std::shared_ptr<Pdf> pdf1;
+};
+}  // namespace RayTracer

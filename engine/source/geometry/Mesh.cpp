@@ -1,8 +1,3 @@
 #include "Mesh.h"
 
-namespace RayTracer
-{
-
- 
-
-}
+namespace RayTracer {}

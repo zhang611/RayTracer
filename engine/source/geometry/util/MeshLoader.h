@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mathlib.h"
-#include <vector>
 #include <string>
+#include <vector>
 
-struct Vertex
-{
+#include "mathlib.h"
+
+struct Vertex {
     // Position Vector
     Vector3 Position;
 
@@ -16,15 +16,11 @@ struct Vertex
     Vector2 TextureCoordinate;
 };
 
-struct Mesh
-{
+struct Mesh {
     // Default Constructor
-    Mesh()
-    {
-    }
+    Mesh() {}
     // Variable Set Constructor
-    Mesh(std::vector<Vertex> &_Vertices, std::vector<unsigned int> &_Indices)
-    {
+    Mesh(std::vector<Vertex> &_Vertices, std::vector<unsigned int> &_Indices) {
         vertices = _Vertices;
         indices = _Indices;
     }
@@ -37,16 +33,10 @@ struct Mesh
     std::vector<unsigned int> indices;
 };
 
-class Loader
-{
-public:
-    Loader()
-    {
-    }
-    ~Loader()
-    {
-        LoadedMeshes.clear();
-    }
+class Loader {
+   public:
+    Loader() {}
+    ~Loader() { LoadedMeshes.clear(); }
     bool LoadFile(std::string Path);
 
     // Loaded Mesh Objects
@@ -56,7 +46,7 @@ public:
     // Loaded Index Positions
     std::vector<unsigned int> LoadedIndices;
 
-private:
+   private:
     void GenVerticesFromRawOBJ(std::vector<Vertex> &oVerts,
                                const std::vector<Vector3> &iPositions,
                                const std::vector<Vector2> &iTCoords,
